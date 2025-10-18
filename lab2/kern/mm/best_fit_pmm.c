@@ -62,11 +62,12 @@ static free_area_t free_area;
 
 static void
 best_fit_init(void) {
-    list_init(&free_list);
-    nr_free = 0;
+    list_init(&free_list);//初始化双向链表
+    nr_free = 0;//初始化空闲页计数器 
 }
 
-static void
+static void  //初始化一块连续的物理内存页框，
+// 将其标记为空闲块并插入空闲链表，用于后续内存分配。
 best_fit_init_memmap(struct Page *base, size_t n) {
     assert(n > 0);
     struct Page *p = base;
@@ -75,11 +76,11 @@ best_fit_init_memmap(struct Page *base, size_t n) {
         /*LAB2 EXERCISE 2: 2311752*/ 
         // 清空当前页框的标志和属性信息，并将页框的引用计数设置为0
         p->flags = 0;
-        set_page_ref(p, 0);
-        p->property = 0;
+        set_page_ref(p, 0);//将页的引用计数设为0
+        p->property = 0;//非空闲块起始页的块大小设为0
 
     }
-    base->property = n;
+    base->property = n;//空闲块起始页base的property设为总页数n
     SetPageProperty(base);
     nr_free += n;
     if (list_empty(&free_list)) {
@@ -106,11 +107,12 @@ best_fit_init_memmap(struct Page *base, size_t n) {
     }
 }
 
-static struct Page *
+static struct Page * //从空闲链表中分配 n 个连续页，
+// 采用 Best-Fit 策略（选择最小的、能满足需求的空闲块）
 best_fit_alloc_pages(size_t n) {
     assert(n > 0);
     if (n > nr_free) {
-        return NULL;
+        return NULL;// 若需求页数超过系统总空闲页，无法分配
     }
     struct Page *page = NULL;
     list_entry_t *le = &free_list;
@@ -120,35 +122,24 @@ best_fit_alloc_pages(size_t n) {
     // 遍历空闲链表，查找满足需求的空闲页框
     // 如果找到满足需求的页面，记录该页面以及当前找到的最小连续空闲页框数量
 
-    // while ((le = list_next(le)) != &free_list) {
-    //     struct Page *p = le2page(le, page_link);
-    //     if (PageProperty(p) && p->property >= n) {
-    //         // 找到更小的满足条件的块，更新候选
-    //         if (p->property < min_size) {
-    //             page = p;
-    //             min_size = p->property;
-    //         }
-    //     }
-    // }
 
-    struct Page *temp = NULL;
     while ((le = list_next(le)) != &free_list) {
         struct Page *p = le2page(le, page_link);
-         if (p->property >= n) {
-            if(p->property < min_size){
+        if (PageProperty(p) && p->property >= n) {// 若当前块大小 >= 需求（满足分配条件）
+            // 找到更小的满足条件的块，更新候选
+            if (p->property < min_size) {// 若当前块是更小的满足条件的块（Best-Fit核心）
+                page = p;
                 min_size = p->property;
-                temp = p;
             }
-         }
+        }
     }
-    page = temp;
 
     if (page != NULL) {
         list_entry_t* prev = list_prev(&(page->page_link));
-        list_del(&(page->page_link));
-        if (page->property > n) {
+        list_del(&(page->page_link));// 将该块从空闲链表中删除（已分配）
+        if (page->property > n) { // 若块大小 > 需求
             struct Page *p = page + n;
-            p->property = page->property - n;
+            p->property = page->property - n;// 剩余块大小 = 原大小 - 分配大小
             SetPageProperty(p);
             list_add(prev, &(p->page_link));
         }
@@ -158,12 +149,13 @@ best_fit_alloc_pages(size_t n) {
     return page;
 }
 
-static void
+static void //释放从 base 开始的 n 个连续页，将其标记为空闲块并插入空闲链表，
+// 同时合并相邻空闲块以减少内存碎片。
 best_fit_free_pages(struct Page *base, size_t n) {
     assert(n > 0);
     struct Page *p = base;
     for (; p != base + n; p ++) {
-        assert(!PageReserved(p) && !PageProperty(p));
+        assert(!PageReserved(p) && !PageProperty(p)); // 确保页不是预留状态，且不是空闲块起始页（必为已分配页）
         p->flags = 0;
         set_page_ref(p, 0);
     }
@@ -176,19 +168,19 @@ best_fit_free_pages(struct Page *base, size_t n) {
 
     if (list_empty(&free_list)) {
         list_add(&free_list, &(base->page_link));
-    } else {
+    } else {// 若链表非空，按"物理地址从小到大"插入
         list_entry_t* le = &free_list;
         while ((le = list_next(le)) != &free_list) {
             struct Page *page = le2page(le, page_link);
-            if (base < page) {
+            if (base < page) {// 找到第一个地址更大的块，插入其前方
                 list_add_before(le, &(base->page_link));
                 break;
-            } else if (list_next(le) == &free_list) {
+            } else if (list_next(le) == &free_list) {// 遍历到尾部，插入尾部
                 list_add(le, &(base->page_link));
             }
         }
     }
-
+// 尝试合并前向相邻的空闲块（释放块的前一个块）
     list_entry_t* le = list_prev(&(base->page_link));
     if (le != &free_list) {
         p = le2page(le, page_link);
@@ -207,7 +199,7 @@ best_fit_free_pages(struct Page *base, size_t n) {
             base = p;  // 更新base指针，以便继续检查后面的块
         }
     }
-
+// 尝试合并后向相邻的空闲块（释放块的后一个块）
     le = list_next(&(base->page_link));
     if (le != &free_list) {
         p = le2page(le, page_link);
