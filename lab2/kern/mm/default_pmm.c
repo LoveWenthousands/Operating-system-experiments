@@ -61,11 +61,12 @@ static free_area_t free_area;
 
 static void
 default_init(void) {
-    list_init(&free_list);
-    nr_free = 0;
+    list_init(&free_list);// 初始化空闲块链表（双向链表）
+    nr_free = 0;// 初始化系统空闲页总数为0
 }
 
-static void
+static void //将一块连续的物理内存页框初始化为空闲块，
+// 并按物理地址顺序插入空闲链表。
 default_init_memmap(struct Page *base, size_t n) {
     assert(n > 0);
     struct Page *p = base;
@@ -74,9 +75,10 @@ default_init_memmap(struct Page *base, size_t n) {
         p->flags = p->property = 0;
         set_page_ref(p, 0);
     }
-    base->property = n;
-    SetPageProperty(base);
+    base->property = n;//记录当前空闲块的总页数
+    SetPageProperty(base);//标记该页为空闲块的起始页
     nr_free += n;
+    // 按"物理地址从小到大"的顺序将空闲块插入空闲链表
     if (list_empty(&free_list)) {
         list_add(&free_list, &(base->page_link));
     } else {
@@ -93,7 +95,8 @@ default_init_memmap(struct Page *base, size_t n) {
     }
 }
 
-static struct Page *
+static struct Page *//从空闲链表中分配n个连续页，
+// 采用首次适应策略（找到第一个能满足需求的空闲块即分配）。
 default_alloc_pages(size_t n) {
     assert(n > 0);
     if (n > nr_free) {
@@ -103,7 +106,7 @@ default_alloc_pages(size_t n) {
     list_entry_t *le = &free_list;
     while ((le = list_next(le)) != &free_list) {
         struct Page *p = le2page(le, page_link);
-        if (p->property >= n) {
+        if (p->property >= n) {// 若当前块大小 >= 需求（满足分配条件）
             page = p;
             break;
         }
@@ -123,7 +126,8 @@ default_alloc_pages(size_t n) {
     return page;
 }
 
-static void
+static void //释放从base开始的n个连续页，将其标记为空闲块并插入空闲链表，
+// 同时合并相邻空闲块以减少内存碎片。
 default_free_pages(struct Page *base, size_t n) {
     assert(n > 0);
     struct Page *p = base;
