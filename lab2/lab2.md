@@ -290,6 +290,7 @@ typedef struct cache {
 **第一层**：页分配器初始化
 - 使用 Best-Fit 算法初始化物理页管理
 - 建立完整的物理内存管理框架
+  
 **第二层**：SLUB 缓存初始化
 ```c
 static cache_t slub_caches[SLAB_CACHE_NUM];  // 3个固定大小缓存
