@@ -64,7 +64,7 @@ size_t nr_free_pages(void); // number of free pages
  * KADDR - takes a physical address and returns the corresponding kernel virtual
  * address. It panics if you pass an invalid physical address.
  * */
-/*
+
 #define KADDR(pa)                                                \
     ({                                                           \
         uintptr_t __m_pa = (pa);                                 \
@@ -74,7 +74,7 @@ size_t nr_free_pages(void); // number of free pages
         }                                                        \
         (void *)(__m_pa + va_pa_offset);                         \
     })
-*/
+
 extern struct Page *pages;
 extern size_t npage;
 extern const size_t nbase;
@@ -86,7 +86,10 @@ static inline uintptr_t page2pa(struct Page *page) {
     return page2ppn(page) << PGSHIFT;
 }
 
-
+// 正确的 page2kva 实现
+static inline void *page2kva(struct Page *page) {
+    return KADDR(page2pa(page));
+}
 
 static inline int page_ref(struct Page *page) { return page->ref; }
 
@@ -109,5 +112,28 @@ static inline struct Page *pa2page(uintptr_t pa) {
 }
 static inline void flush_tlb() { asm volatile("sfence.vm"); }
 extern char bootstack[], bootstacktop[]; // defined in entry.S
+
+/* *
+ * SLUB (Slab Utilization By-pass) 分配器接口
+ * 用于高效的小内存对象分配
+ * */
+
+// SLUB 分配器初始化（可选，如果需要显式初始化）
+void slub_init(void);
+
+// SLUB 小内存分配（size <= 128 使用缓存，更大的使用页分配）
+void *slub_alloc(size_t size);
+
+// SLUB 小内存释放
+void slub_free(void *obj);
+
+// SLUB 大内存直接页分配（透明使用底层页分配器）
+void *slub_alloc_pages(size_t n);
+
+// SLUB 大内存直接页释放
+void slub_free_pages(void *addr, size_t n);
+
+// SLUB 分配器状态检查
+void slub_check(void);
 
 #endif /* !__KERN_MM_PMM_H__ */
