@@ -193,6 +193,10 @@ Best-Fit 算法的核心思想是：在分配内存时，优先选择最小的�
 - 合并相邻块：
   - 检查前向块：若前向块的结束地址（p + p->property）等于 base，则合并（前向块的 property 累加 base 的大小，移除 base 从链表）；
   - 检查后向块：若 base 的结束地址（base + base->property）等于后向块的起始地址，合并（base 的 property 累加后向块的大小，移除后向块从链表）。
+
+### 算法结果展示
+需要注意的是，我们需要把`pmm.c`文件中默认的default策略更新为我们的`best-fit`策略，然后运行`make qemu`编译文件，并且使用`make grade`进行测试，得到以下的结果：
+<img width="814" height="495" alt="ffb1bfdf8c451d38d112d8a9dc69c801" src="https://github.com/user-attachments/assets/5945f097-06ab-4160-b3ae-cbc967bd400b" />
  
 ### Best-Fit 算法的改进空间
 Best-Fit 算法虽能减少大空闲块的分割，但存在效率和碎片管理的不足，可从以下方面改进：
