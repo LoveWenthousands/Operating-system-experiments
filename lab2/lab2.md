@@ -196,6 +196,7 @@ Best-Fit 算法的核心思想是：在分配内存时，优先选择最小的�
 
 ### 算法结果展示
 需要注意的是，我们需要把`pmm.c`文件中默认的default策略更新为我们的`best-fit`策略，然后运行`make qemu`编译文件，并且使用`make grade`进行测试，得到以下的结果：
+
 <img width="814" height="495" alt="ffb1bfdf8c451d38d112d8a9dc69c801" src="https://github.com/user-attachments/assets/5945f097-06ab-4160-b3ae-cbc967bd400b" />
  
 ### Best-Fit 算法的改进空间
