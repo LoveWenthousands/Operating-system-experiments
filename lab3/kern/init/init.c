@@ -32,6 +32,10 @@ int kern_init(void) {
 
     idt_init();  // init interrupt descriptor table
 
+    asm volatile("ebreak"); // 插入一个断点异常以测试断点处理
+
+    asm volatile(".word 0x0000000b"); // 插入一个非法指令以测试非法指令处理
+
     clock_init();   // init clock interrupt
     intr_enable();  // enable irq interrupt
 

@@ -183,9 +183,9 @@ void exception_handler(struct trapframe *tf) {
              *(2)输出异常指令地址
              *(3)更新 tf->epc寄存器
             */
-            cprintf("Illegal instruction\n");
-            cprintf("Exception at 0x%08x\n", tf->epc);
-            tf->epc += 4;  // 跳过异常指令（RISC-V指令为4字节对齐）
+            cprintf("Exception type:Illegal instruction");
+            cprintf("Illegal instruction caught at 0x%08x\n", tf->epc); 
+            tf->epc += 4; //跳过非法指令
             break;
         case CAUSE_BREAKPOINT:
             //断点异常处理
@@ -194,9 +194,9 @@ void exception_handler(struct trapframe *tf) {
              *(2)输出异常指令地址
              *(3)更新 tf->epc寄存器
             */
-            cprintf("breakpoint\n");
-            cprintf("Exception at 0x%08x\n", tf->epc);
-            tf->epc += 4;  // 跳过断点指令（ebreak）
+            cprintf("Exception type: breakpoint\n");  // 添加换行符
+            cprintf("ebreak caught at 0x%016lx\n", (unsigned long)tf->epc);  // 使用64位格式
+            tf->epc += 2;  // ebreak是16位指令，只需要前进2字节
             break;
         case CAUSE_MISALIGNED_LOAD:
             break;
