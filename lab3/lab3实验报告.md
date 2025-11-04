@@ -192,3 +192,61 @@ trap函数返回后，执行RESTORE_ALL宏，从栈中恢复中断前的上下�
 
 **不还原这些csr的原因**：
 我们首先来看这两个寄存器的含义：stval寄存器的值表示中断或者异常的辅助信息，scause寄存器的值表示中断或者异常的类型或者原因。因此这两个寄存器代表的是该中断或者异常事件的性质，我们的CPU在下一个中断或者异常会重新为这两个寄存器赋值，我们并不关心上个中断或者异常的原因以及辅助信息，所以就没有必要去还原他们了。
+
+
+扩展练习Challenge3：完善异常中断
+
+编程完善在触发一条非法指令异常和断点异常，在 kern/trap/trap.c的异常处理函数中捕获，并对其进行处理，简单输出异常类型和异常指令触发地址，即“Illegal instruction caught at 0x(地址)”，“ebreak caught at 0x（地址）”与“Exception type:Illegal instruction"，“Exception type: breakpoint”。
+
+**通过在中断异常和非法指令异常处理的代码处增加以下处理方式**：
+ case CAUSE_ILLEGAL_INSTRUCTION:
+
+             // 非法指令异常处理
+
+             /* LAB3 CHALLENGE3   YOUR CODE : 2311752 */
+
+            /*(1)输出指令异常类型（ Illegal instruction）
+
+             *(2)输出异常指令地址
+
+             *(3)更新 tf->epc寄存器
+
+            */
+
+            cprintf("Exception type:Illegal instruction");
+
+            cprintf("Illegal instruction caught at 0x%08x\n", tf->epc);
+
+            tf->epc += 4; //跳过非法指令
+
+            break;
+
+        case CAUSE_BREAKPOINT:
+
+            //断点异常处理
+
+            /* LAB3 CHALLLENGE3   YOUR CODE : 2310425 */
+
+            /*(1)输出指令异常类型（ breakpoint）
+
+             *(2)输出异常指令地址
+
+             *(3)更新 tf->epc寄存器
+
+            */
+
+            cprintf("Exception type: breakpoint\n");  // 添加换行符
+
+            cprintf("ebreak caught at 0x%016lx\n", (unsigned long)tf->epc);  // 使用64位格式
+
+            tf->epc += 2;  // ebreak是16位指令，只需要前进2字节
+
+            break;
+         
+  并在init.c中添加两条触发的对应汇编代码
+     asm volatile("ebreak"); // 插入一个断点异常以测试断点处理
+
+  
+
+    asm volatile(".word 0x0000000b"); // 插入一个非法指令以测试非法指令处理
+  来进行触发
