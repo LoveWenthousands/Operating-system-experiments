@@ -119,7 +119,7 @@ struct context
 
 ##### struct trapframe *tf 成员变量含义和在本实验中的作用
 
-**含义**：这是陷阱帧，保存了进程的中断帧（32个通用寄存器、异常相关的寄存器）。
+**含义**：保存了进程的中断帧（32个通用寄存器、异常相关的寄存器）。
 
 **作用**：保存了进程的中断帧（32个通用寄存器、异常相关的寄存器），实现执行状态的完全保存与精确恢复，从而为多个进程透明地共享CPU提供技术基础。通过完整保存32个通用寄存器和异常相关寄存器，操作系统能够在中断或进程切换时捕获进程的完整执行状态，使得每个进程都觉得自己在独占CPU连续运行，而不知道被频繁中断和调度的事实，这样就实现了多任务并发的透明性和进程间的完全隔离。
 
@@ -373,6 +373,14 @@ void proc_run(struct proc_struct *proc) {
 - idleproc：第一个内核进程，完成内核中各个子系统的初始化，之后立即调度，执行其他进程。
 
 - initproc：用于完成实验的功能而调度的内核进程。
+
+#### 实验结果：
+##### make qemu:
+<img width="807" height="646" alt="7501a14ae5f8864aab9aa9579003923f" src="https://github.com/user-attachments/assets/43613d81-1bc5-498f-8a4c-ae0dee7aae71" />
+
+##### make grade:
+<img width="813" height="361" alt="ee8138f3254e5c2ae42d52305554b0fe" src="https://github.com/user-attachments/assets/5acb06c1-3c4a-4acd-89b0-c641566cdb71" />
+
 
 ### 扩展练习 Challenge1：
 
