@@ -572,6 +572,7 @@ int do_exit(int error_code)
  * @binary:  the memory addr of the content of binary program
  * @size:  the size of the content of binary program
  */
+ //
 static int
 load_icode(unsigned char *binary, size_t size)
 {
