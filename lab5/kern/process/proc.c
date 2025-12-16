@@ -475,12 +475,23 @@ int do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf)
     }
     //    4. call copy_thread to setup tf & context in proc_struct
     copy_thread(proc,stack,tf);
-    //    5. insert proc_struct into hash_list && proc_list
-    proc->pid=get_pid();
-    hash_proc(proc);
-    // LAB5 UPDATE: set the relation links of process  
-    // 建立子进程与父进程、兄弟进程的关联（cptr/optr/yptr）
-    set_links(proc); 
+    // 必须关闭中断，保证全局链表操作的原子性
+    bool intr_flag;
+    local_intr_save(intr_flag); // 关中断
+    {
+        proc->pid = get_pid();
+        
+        // 5. insert proc_struct into hash_list && proc_list
+        hash_proc(proc);
+        
+        // LAB5 NOTE: 确保 set_links 内部或者在这里完成了 list_add(&proc_list, ...) 和 nr_process++
+        set_links(proc); 
+        
+        // 如果 set_links 没有处理 proc_list 和 nr_process，你需要在这里显式添加：
+        // list_add(&proc_list, &(proc->list_link));
+        // nr_process++;
+    }
+    local_intr_restore(intr_flag); // 开中断
     //    6. call wakeup_proc to make the new child process RUNNABLE
     wakeup_proc(proc);
     //    7. set ret vaule using child proc's pid

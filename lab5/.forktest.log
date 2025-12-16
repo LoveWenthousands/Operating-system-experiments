@@ -30,11 +30,11 @@ DTB init completed
 (THU.CST) os is loading ...
 
 Special kernel symbols:
-  entry  0xc020004a (virtual)
-  etext  0xc02057ba (virtual)
-  edata  0xc0297588 (virtual)
-  end    0xc029ba30 (virtual)
-Kernel executable memory footprint: 623KB
+  entry  0xc020004e (virtual)
+  etext  0xc020552c (virtual)
+  edata  0xc02a0488 (virtual)
+  end    0xc02a4930 (virtual)
+Kernel executable memory footprint: 659KB
 memory management: default_pmm_manager
 physcial memory map:
   memory: 0x08000000, [0x80000000, 0x87ffffff].
@@ -84,6 +84,6 @@ I am child 0
 forktest pass.
 all user-mode processes have quit.
 init check memory pass.
-kernel panic at kern/process/proc.c:520:
+kernel panic at kern/process/proc.c:531:
     initproc exit.
 
