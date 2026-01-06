@@ -126,7 +126,7 @@ alloc_proc(void)
          *       uint32_t lab6_priority;                     // priority value (lab6 stride)
          */
 
-        //LAB8 YOUR CODE : (update LAB6 steps)
+        //LAB8 2310425 : (update LAB6 steps)
         /*
          * below fields(add in LAB6) in proc_struct need to be initialized
          *       struct files_struct * filesp;                file struct point        
@@ -264,6 +264,23 @@ get_pid(void)
 // NOTE: before call switch_to, should load  base addr of "proc"'s new PDT
 void proc_run(struct proc_struct *proc)
 {
+// LAB4:填写你在lab4中实现的代码
+        /*
+        * Some Useful MACROs, Functions and DEFINEs, you can use them in below implementation.
+        * MACROs or Functions:
+        *   local_intr_save():        Disable interrupts
+        *   local_intr_restore():     Enable Interrupts
+        *   lcr3():                   Modify the value of CR3 register
+        *   switch_to():              Context switching between two processes
+        */
+    //LAB8 2310425 : (update LAB4 steps)
+      /*
+       * below fields(add in LAB6) in proc_struct need to be initialized
+       *       before switch_to();you should flush the tlb
+       *        MACROs or Functions:
+       *       flush_tlb():          flush the tlb        
+       */
+  
     if (proc != current) {
                 
         bool intr_flag;
@@ -277,8 +294,11 @@ void proc_run(struct proc_struct *proc)
 
             // 2. 切换页表（SATP），使用新进程的地址空间
             lsatp(next->pgdir);
+            
+            // 3. 刷新TLB，确保地址转换正确
+            flush_tlb();
 
-            // 3. 进行上下文切换
+            // 4. 进行上下文切换
             switch_to(&(prev->context), &(next->context));
         }
         // 重新打开中断
@@ -565,7 +585,7 @@ int do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf)
     ret = proc->pid;
     // jump to common return path
     goto fork_out;
-    // LAB8:EXERCISE2 YOUR CODE  HINT:how to copy the fs in parent's proc_struct?
+    // LAB8:EXERCISE2 2310425  HINT:how to copy the fs in parent's proc_struct?
     // LAB4:填写你在lab4中实现的代码
     /*
      * Some Useful MACROs, Functions and DEFINEs, you can use them in below implementation.
@@ -697,6 +717,33 @@ load_icode_read(int fd, void *buf, size_t len, off_t offset)
 static int
 load_icode(int fd, int argc, char **kargv)
 {
+
+/* LAB8:EXERCISE2 2310425  HINT:how to load the file with handler fd  in to process's memory? how to setup argc/argv?
+     * MACROs or Functions:
+     *  mm_create        - create a mm
+     *  setup_pgdir      - setup pgdir in mm
+     *  load_icode_read  - read raw data content of program file
+     *  mm_map           - build new vma
+     *  pgdir_alloc_page - allocate new memory for  TEXT/DATA/BSS/stack parts
+     *  lsatp             - update Page Directory Addr Register -- CR3
+     */
+    //You can Follow the code form LAB5 which you have completed  to complete 
+    /* (1) create a new mm for current process
+     * (2) create a new PDT, and mm->pgdir= kernel virtual addr of PDT
+     * (3) copy TEXT/DATA/BSS parts in binary to memory space of process
+     *    (3.1) read raw data content in file and resolve elfhdr
+     *    (3.2) read raw data content in file and resolve proghdr based on info in elfhdr
+     *    (3.3) call mm_map to build vma related to TEXT/DATA
+     *    (3.4) callpgdir_alloc_page to allocate page for TEXT/DATA, read contents in file
+     *          and copy them into the new allocated pages
+     *    (3.5) callpgdir_alloc_page to allocate pages for BSS, memset zero in these pages
+     * (4) call mm_map to setup user stack, and put parameters into user stack
+     * (5) setup current process's mm, cr3, reset pgidr (using lsatp MARCO)
+     * (6) setup uargc and uargv in user stacks
+     * (7) setup trapframe for user environment
+     * (8) if up steps failed, you should cleanup the env.
+     */
+  
     assert(argc >= 1 && argc <= EXEC_MAX_ARG_NUM);
 
     int ret = -E_NO_MEM;
