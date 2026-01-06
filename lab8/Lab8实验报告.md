@@ -377,19 +377,19 @@ tf->gpr.sp = sp;
 
 #### make qemu
 
-![](C:\Users\17913\AppData\Roaming\marktext\images\2026-01-06-21-10-14-fdde3d91a2b929ff80b824dc94892428.png)
+<img width="523" height="1054" alt="make qemu" src="https://github.com/user-attachments/assets/90a69127-430d-4173-8d84-0afbc777c65c" />
 
 我们能够成功看到sh用户程序的执行界面，说明我们的实现基本成功了。
 
 #### 在sh用户界面上执行exit 、hello
 
-<img title="" src="file:///C:/Users/17913/AppData/Roaming/marktext/images/2026-01-06-21-13-15-acd04e27fb8449e12ba62ea3dcb9f1e9.png" alt="" width="366">
+<img width="253" height="180" alt="exit_hello" src="https://github.com/user-attachments/assets/c25d6e2f-1001-4cd1-bc59-0f3b529b8784" />
 
 能够在sh用户界面上执行`exit`, `hello`等其他放置在`sfs`文件系统中的执行程序，并得到预期正确输出，本次实验基本成功。
 
 #### make grade
 
-<img src="file:///C:/Users/17913/AppData/Roaming/marktext/images/2026-01-06-21-17-32-ff79ec587de870cd83cfcc53a9798502.png" title="" alt="" width="551">
+<img width="399" height="75" alt="make grade" src="https://github.com/user-attachments/assets/fb48d43e-d7d0-46c1-b16c-845770f321ce" />
 
 我们可以看到，make grade 可以得到满分，说明我们可以通过练习2相关的所有测试，表示我们的实现完全正确。
 
@@ -732,3 +732,4 @@ struct spinlock i_lock; // 新增：inode自旋锁，用于保护对inode成员�
 
 - 软链接的解析过程主要是读取操作，本身不涉及修改，因此通常不需要加锁。
 - 但存在一种竞态条件：在解析软链接`A`（指向`B`）的过程中，文件`B`被另一个进程删除。这种情况属于正常的并发行为，内核只需要正确地将解析结果报告为“文件不存在”（`ENOENT`）即可，无需特殊的同步机制。
+
