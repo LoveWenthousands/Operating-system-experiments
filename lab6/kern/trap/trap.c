@@ -141,9 +141,11 @@ void interrupt_handler(struct trapframe *tf)
         //     }
         // }
 
-        // lab6: YOUR CODE  (update LAB3 steps)
+        // lab6: 2310425  (update LAB3 steps)
         //  在时钟中断时调用调度器的 sched_class_proc_tick 函数
-        sched_class_proc_tick(current);
+        if (current) {
+            sched_class_proc_tick(current);
+        }
 
         break;
     case IRQ_H_TIMER:
