@@ -1064,3 +1064,10 @@ void lab6_set_priority(uint32_t priority)
     else
         current->lab6_priority = priority;
 }
+
+// FOR SJF: set the expected job length for the current process
+void lab6_set_expected(uint32_t expected)
+{
+    cprintf("set sjf expected to %u\n", expected);
+    current->sjf_expected = expected;
+} 

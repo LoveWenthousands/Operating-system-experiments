@@ -56,3 +56,9 @@ lab6_setpriority(uint32_t priority)
 {
     sys_lab6_set_priority(priority);
 }
+
+void
+lab6_setexpected(uint32_t expected)
+{
+    sys_lab6_set_expected(expected);
+} 

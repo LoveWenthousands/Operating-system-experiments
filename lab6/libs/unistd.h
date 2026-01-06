@@ -22,6 +22,7 @@
 #define SYS_pgdir 31
 /*only for lab6*/
 #define SYS_lab6_set_priority 255
+#define SYS_lab6_set_expected 254
 
 /* SYS_fork flags */
 #define CLONE_VM 0x00000100     // set if VM shared between processes

@@ -86,3 +86,9 @@ sys_lab6_set_priority(uint64_t priority)
 {
     syscall(SYS_lab6_set_priority, priority);
 }
+
+void
+sys_lab6_set_expected(uint64_t expected)
+{
+    syscall(SYS_lab6_set_expected, expected);
+} 
