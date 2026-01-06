@@ -593,7 +593,7 @@ sfs_io_nolock(struct sfs_fs *sfs, struct sfs_inode *sin, void *buf, off_t offset
     uint32_t nblks = endpos / SFS_BLKSIZE - blkno;  // 需要读写的完整块数
     off_t blkoff = offset % SFS_BLKSIZE;             // 块内偏移量
 
-    // LAB8:EXERCISE1 你的代码开始
+    // LAB8:EXERCISE1 2310425
     // 步骤1：处理起始位置未与块边界对齐的情况（头部）
     if (blkoff != 0) {
         size_t size = (nblks != 0) ? (SFS_BLKSIZE - blkoff) : (endpos - offset);
